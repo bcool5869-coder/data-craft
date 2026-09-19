@@ -1,5 +1,7 @@
 # 📊 Data Craft
 
+**Live site: https://bcool5869-coder.github.io/data-craft/**
+
 A free, hands-on **data science and AI course** that runs entirely on GitHub Pages.
 16 lessons take you from your first line of Python to how large language models work. Each lesson has:
 
