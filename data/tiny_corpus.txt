@@ -1,0 +1,11 @@
+The data told a quiet story. Every morning the cafe opened at seven, and every morning the first customer ordered a latte.
+The owner did not notice the pattern until she wrote the orders down. Then she counted them, and the counts made a table,
+and the table made a chart, and the chart showed the weekends rising like small hills.
+A model is a simple idea. It looks at many examples and learns a rule that fits them. When the rule is good, it works on
+new examples too. When the rule is too clever, it remembers the old examples and fails on the new ones.
+The student asked the teacher why the loss went down. The teacher said that each step moved the weights a little
+downhill, and after thousands of small steps the model found the bottom of the valley.
+Tokens are small pieces of text. The model reads the tokens one by one and guesses the next one. It is wrong at first.
+Then it is trained, and it becomes less wrong, and one day it writes a sentence that sounds almost like a person.
+Clean the data first. Look at it carefully. Ask a clear question. Test the answer on data the model has never seen.
+Tell the truth about what the numbers say, and about what they do not say.
