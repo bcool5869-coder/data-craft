@@ -2,8 +2,9 @@
 import { Wllama } from '../vendor/wllama/index.js';
 
 // Everything is served from this repo (GitHub Pages). GitHub rejects files over 100 MB and this model has a
-// single 164 MB tensor, so llama-gguf-split can't help: the file is cut into plain 90 MB byte parts
-// (`split -b 90M`), re-joined here, and stored once in wllama's browser cache.
+// single 164 MB tensor, so llama-gguf-split can't help: the file is cut into plain 30 MB byte parts
+// (`split -b 30M -d -a 2`; small enough to push over a flaky connection), re-joined here, and stored once in
+// wllama's browser cache.
 export const MODELS = {
   '1b': {
     label: 'MiniCPM5-1B',
@@ -12,8 +13,8 @@ export const MODELS = {
     // already downloaded the model there doesn't download it again. Change the name if the weights ever change.
     cacheName: 'story-craft_MiniCPM5-1B-Q4_K_M.gguf',
     bytes: 688065920,
-    parts: Array.from({ length: 8 }, (_, i) =>
-      new URL(`../models/minicpm5-1b/MiniCPM5-1B-Q4_K_M.gguf.part0${i}`, import.meta.url).href),
+    parts: Array.from({ length: 22 }, (_, i) =>
+      new URL(`../models/minicpm5-1b/MiniCPM5-1B-Q4_K_M.gguf.part${String(i).padStart(2, '0')}`, import.meta.url).href),
   },
 };
 

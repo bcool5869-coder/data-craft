@@ -60,7 +60,7 @@ js/tutor.js           tutor prompts (explain code, explain an error, answer a qu
 data/                 small synthetic datasets (tools/make_data.py regenerates them) and a tiny text corpus
 vendor/pyodide/       Pyodide 314.0.7 core + only the 17 wheels needed (~52 MB, MPL-2.0 and package licences)
 vendor/wllama/        wllama 3.6.1 (MIT)
-models/minicpm5-1b/   MiniCPM5-1B Q4_K_M in 8 byte parts under GitHub's 100 MB limit (Apache-2.0)
+models/minicpm5-1b/   MiniCPM5-1B Q4_K_M in 22 plain 30 MB byte parts (GitHub limit is 100 MB per file; small parts survive a flaky upload) (Apache-2.0)
 ```
 
 - **One Python namespace per lesson**. A lesson's hidden `setup` (shown in a collapsible block) runs before its first
