@@ -3,6 +3,7 @@ import { RESOURCES, STAGES, byId } from './resources.js';
 import * as ai from './ai.js';
 import * as py from './py.js';
 import * as tutor from './tutor.js';
+import { startHero } from './hero.js';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const main = $('#main');
@@ -391,38 +392,78 @@ function resourcesCard(lesson) {
 }
 
 // ---------- pages ----------
+const svg = (s) => { const t = document.createElement('template'); t.innerHTML = s.trim(); return t.content.firstChild; };
+const ICON = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const FEATURES = [
+  [ICON('<path d="M4 17l6-5-6-5"/><path d="M12 19h8"/>'), 'Real Python in the browser',
+    'NumPy, pandas, scikit-learn and matplotlib, running on your machine. Nothing to install.'],
+  [ICON('<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/>'), 'A private AI tutor',
+    'A small language model on your own device explains code and errors. Nothing you type leaves it.'],
+  [ICON('<rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>'), 'Free, forever',
+    'No account and no server. Your progress is saved only in this browser.'],
+];
+
 function renderHome() {
   document.title = `${SITE}: a free data science & AI course`;
+  main.className = 'home';
   const done = LESSONS.filter(lessonDone).length;
   const parts = [...new Set(LESSONS.map((l) => l.part))];
+  const next = LESSONS.find((l) => !lessonDone(l)) || LESSONS[0];
+  const hours = Math.round(LESSONS.reduce((a, l) => a + l.minutes, 0) / 60);
+  const canvas = el('canvas', { class: 'hero-plot', role: 'img', 'aria-label': 'Animation: k-means clustering grouping random points into three clusters' });
+  const readout = el('span', { class: 'readout' });
+  const stat = (v, label) => el('div', { class: 'stat' }, el('strong', {}, v), el('span', {}, label));
+
   main.replaceChildren(
     el('section', { class: 'hero' },
-      el('h1', {}, 'Learn data science and AI by doing'),
-      el('p', { class: 'lede' },
-        '16 hands-on lessons, from your first line of Python to how ChatGPT-style models work. Every lesson has real code you run and edit in your browser, a checked exercise, a quick quiz and links to the best free courses for going deeper.'),
-      el('ul', { class: 'features' },
-        el('li', {}, el('strong', {}, 'Real Python in the browser. '), 'NumPy, pandas, scikit-learn and matplotlib, with nothing to install.'),
-        el('li', {}, el('strong', {}, 'A private AI tutor. '), 'A small language model that runs on your own device explains code and errors.'),
-        el('li', {}, el('strong', {}, 'Free forever. '), 'No account, no server. Your progress stays in this browser.')),
-      el('p', { class: 'muted' }, `${done} of ${LESSONS.length} lessons complete`),
-      el('div', { class: 'progress home' }, el('div', { class: 'bar', style: `width:${(100 * done) / LESSONS.length}%` }))),
-    ...parts.map((part) => el('section', { class: 'part' },
-      el('h2', {}, part),
-      el('ol', { class: 'lesson-list' },
-        ...LESSONS.filter((l) => l.part === part).map((l) => el('li', {},
-          el('a', { href: `#/lesson/${l.id}`, class: lessonDone(l) ? 'done' : '' },
-            el('span', { class: 'num' }, String(l.id)),
-            el('span', { class: 'title' }, l.title),
-            el('span', { class: 'meta' }, lessonDone(l) ? '✓ done' : `${l.minutes} min`))))))),
-    el('section', { class: 'card cta' },
-      el('h2', {}, `${RESOURCES.length} free courses and books`),
-      el('p', {}, 'From Harvard, MIT, Stanford, Google, Microsoft, Kaggle, fast.ai, Hugging Face and more, organised along the same path as this course.'),
+      el('div', { class: 'hero-copy' },
+        el('p', { class: 'kicker' }, 'A free, hands-on course'),
+        el('h1', {}, 'Learn data science & AI by ', el('em', {}, 'doing'), '.'),
+        el('p', { class: 'lede' },
+          `${LESSONS.length} lessons, from your first line of Python to how ChatGPT-style models work. Real code you run and edit, a checked exercise, a quiz and the best free courses for going deeper.`),
+        el('div', { class: 'actions' },
+          el('a', { href: `#/lesson/${next.id}`, class: 'button primary' }, done ? `Continue with lesson ${next.id} →` : 'Start lesson 1 →'),
+          el('a', { href: '#/courses', class: 'button' }, 'Free courses')),
+        el('div', { class: 'stats' },
+          stat(String(LESSONS.length), 'lessons'), stat(`~${hours} h`, 'of practice'), stat('0', 'installs'), stat('100%', 'private'))),
+      el('figure', { class: 'hero-fig' },
+        el('div', { class: 'fig-bar' }, el('code', {}, 'KMeans(n_clusters=3).fit(X)'), readout),
+        canvas,
+        el('figcaption', {}, 'k-means grouping random points, live. You run the real thing in lesson 12.'))),
+
+    el('section', { class: 'feature-grid' },
+      ...FEATURES.map(([icon, title, text]) => el('div', { class: 'feature' },
+        el('span', { class: 'icon' }, svg(icon)), el('h3', {}, title), el('p', {}, text)))),
+
+    el('section', { class: 'path' },
+      el('div', { class: 'section-head' },
+        el('div', {}, el('p', { class: 'kicker' }, 'The curriculum'), el('h2', {}, `One path, ${parts.length} parts`)),
+        el('div', { class: 'path-progress' },
+          el('span', { class: 'muted small' }, `${done} of ${LESSONS.length} complete`),
+          el('div', { class: 'progress home' }, el('div', { class: 'bar', style: `width:${(100 * done) / LESSONS.length}%` })))),
+      ...parts.map((part, i) => el('section', { class: 'part' },
+        el('div', { class: 'part-label' }, el('span', {}, `Part ${i + 1}`), el('h3', {}, part)),
+        el('ol', { class: 'lesson-list' },
+          ...LESSONS.filter((l) => l.part === part).map((l) => el('li', {},
+            el('a', { href: `#/lesson/${l.id}`, class: lessonDone(l) ? 'done' : '' },
+              el('span', { class: 'num' }, lessonDone(l) ? '✓' : String(l.id).padStart(2, '0')),
+              el('span', { class: 'title' }, l.title),
+              el('span', { class: 'meta' }, lessonDone(l) ? 'done' : `${l.minutes} min`)))))))),
+
+    el('section', { class: 'cta' },
+      el('div', {},
+        el('p', { class: 'kicker' }, 'Keep going'),
+        el('h2', {}, `${RESOURCES.length} free courses and books`),
+        el('p', {}, 'From Harvard, MIT, Stanford, Google, Microsoft, Kaggle, fast.ai, Hugging Face and more, organised along the same path as this course.')),
       el('a', { href: '#/courses', class: 'button primary' }, 'Browse free courses →')),
   );
+  startHero(canvas, readout);
+  window.scrollTo(0, 0);
 }
 
 function renderCourses() {
   document.title = `Free courses: ${SITE}`;
+  main.className = '';
   let stage = 'All';
   const list = el('div');
   const chips = el('div', { class: 'chips', role: 'toolbar', 'aria-label': 'Filter by topic' });
@@ -447,6 +488,7 @@ function renderCourses() {
 
 function renderLesson(lesson) {
   document.title = `${lesson.id}. ${lesson.title}: ${SITE}`;
+  main.className = '';
   if (session.lesson !== lesson) {
     session = { lesson, setupDone: false };
     if (py.isStarted()) py.reset();
